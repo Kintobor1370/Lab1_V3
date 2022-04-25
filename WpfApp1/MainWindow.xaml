@@ -1,0 +1,69 @@
+﻿<Window x:Class="WpfApp1.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Closing="WpfApp1_Closing"  
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApp1"
+        mc:Ignorable="d"
+        Title="Lab 1 Var 3" Height="600" Width="800">
+    <Window.Resources>
+        <local:NumConverter x:Key="NumConv"/>
+        <local:ScopeConverter x:Key="ScopeConv"/>
+        <local:FloatConverter x:Key="FloatConv"/>
+        <local:BoolConverter x:Key="BoolConv"/>
+        <DataTemplate x:Key="GridTemplate">
+            <StackPanel>
+                <TextBlock Text="{Binding StringFormat=Функция: {0}, Path=VMG_Data.Func}"/>
+                <TextBlock Text="{Binding StringFormat=Число точек: {0}, Path=VMG_Data.Num}"/>
+                <TextBlock Text="{Binding StringFormat=Начало отрезка: {0}, Path=VMG_Data.Scope[0]}"/>
+                <TextBlock Text="{Binding StringFormat=Конец отрезка: {0}, Path=VMG_Data.Scope[1]}"/>
+            </StackPanel>
+        </DataTemplate>
+    </Window.Resources>
+    <StackPanel Margin="0,0,0,25">
+        <Menu Height="20">
+            <MenuItem Header="File">
+                <MenuItem Header="New"  Click="New_Click"/>
+                <MenuItem Header="Open" Click="Open_Click"/>
+                <MenuItem Header="Save" Click="Save_Click"/>
+            </MenuItem>
+            <MenuItem Header="Edit" >
+                <MenuItem Header="Add VMTime" Click="AddVMTime_Click"/>
+                <MenuItem Header="Add VMAccuracy" Click="AddVMAccuracy_Click"/>
+            </MenuItem>
+        </Menu>
+        <Grid>
+            <TextBlock x:Name="ChooseYourVMf" Margin="25,42,505,374" Width="270" Height="20"><Run Text="Выберите математическую функцию Intel MKL"/></TextBlock>
+            <ComboBox x:Name="WMfBox" SelectedValue="{Binding VMGrid.Func}" Margin="25,65,505,351" Width="270" Height="20"/>
+            <TextBlock x:Name="EnterNum" Margin="25,125,505,291" Width="270" Height="20"><Run Text="Введите число узлов сетки"/></TextBlock>
+            <TextBox x:Name="NumBox" Margin="25,143,505,273" Width="270" Height="20" Text="{Binding VMGrid.Num, Converter={StaticResource NumConv}, UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBlock x:Name="EnterScope" Margin="25,195,505,205" Width="270" Height="35"><Run Text="Введите границы отрезка"/><LineBreak/><Run Text="(Пример: *начало отрезка*;*конец отрезка*)"/></TextBlock>
+            <TextBox x:Name="ScopeBox" Margin="25,231,505,185" Width="270" Height="20">
+                <MultiBinding UpdateSourceTrigger="PropertyChanged" Converter="{StaticResource ScopeConv}">
+                    <Binding Path="VMGrid.Scope[0]"/>
+                    <Binding Path="VMGrid.Scope[1]"/>
+                </MultiBinding>
+            </TextBox>
+            <TextBlock x:Name="DataIsChanged" Margin="25,370,505,60" TextWrapping="Wrap" Text="{Binding Path=IsChanged, Converter={StaticResource BoolConv},  UpdateSourceTrigger=PropertyChanged}" Width="270" Height="20"/>
+            <TextBlock x:Name="MinVal" Margin="25,400,505,30" TextWrapping="Wrap" Text="{Binding StringFormat=Мин. значение коэффициента отношения времени вычисления: {0}, Path=VMBenchmark.EP_by_HA_Min, Converter={StaticResource FloatConv}, UpdateSourceTrigger=PropertyChanged}" Width="270" Height="30"/>
+            <TextBlock x:Name="MaxVal" Margin="25,438,505,-8" TextWrapping="Wrap" Text="{Binding StringFormat=Макс. значение коэффициента отношения времени вычисления: {0}, Path=VMBenchmark.EP_by_HA_Max, Converter={StaticResource FloatConv}, UpdateSourceTrigger=PropertyChanged}" Width="270" Height="30"/>
+            <TextBlock x:Name="TimeCollectionTitle" Text="Коллекция результатов сравнения времени" TextWrapping="Wrap" Margin="347,9,253,403" FontWeight="Black" Height="37" Width="200"/>
+            <ListBox x:Name="TimeCollectionList" ItemsSource="{Binding VMBenchmark.TimeCollection, UpdateSourceTrigger=PropertyChanged}" Margin="347,39,253,72" ItemTemplate="{StaticResource GridTemplate}" Width="200" Height="325"/>
+            <TextBlock x:Name="AccuracyCollectionTitle" Text="Коллекция результатов сравнения точности вычисления функций" TextWrapping="Wrap" Margin="568,9,5,404" FontWeight="Black" Height="37" Width="225"/>
+            <ListBox x:Name="AccuracyCollectionList" ItemsSource="{Binding VMBenchmark.AccuracyCollection, UpdateSourceTrigger=PropertyChanged}" Margin="567,39,33,72" ItemTemplate="{StaticResource GridTemplate}" Width="200" Height="325"/>
+            <StackPanel Margin="347,371,253,-2" Width="200" Height="80">
+                <TextBlock Text="Коэффициент отношения времени вычислений в режиме VML_EP  к времени вычислений в режиме VML_HA:" TextWrapping="Wrap" Width="200"/>
+                <TextBlock Text="{Binding SelectedItem.EP_by_HA, Converter={StaticResource FloatConv}, ElementName=TimeCollectionList}" TextWrapping="Wrap" Width="200"/>
+            </StackPanel>
+            <StackPanel Margin="567,371,33,-177" Width="200">
+                <TextBlock Text="Значение аргумента, при котором максимально отличаются значения функции, вычисленные в режимах VML_EP и VML_HA:" TextWrapping="Wrap" Width="200"/>
+                <TextBlock Text="{Binding SelectedItem.Max_arg, ElementName=AccuracyCollectionList}" TextWrapping="Wrap"/>
+                <TextBlock Text="Значение функции в режиме VML_HA:" TextWrapping="Wrap" Width="200"/>
+                <TextBlock Text="{Binding SelectedItem.HA_Val, ElementName=AccuracyCollectionList}" TextWrapping="Wrap"/>
+                <TextBlock Text="Значения функции в режиме VML_EP:" TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding SelectedItem.EP_Val, ElementName=AccuracyCollectionList}" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Grid>
+    </StackPanel>
+</Window>
