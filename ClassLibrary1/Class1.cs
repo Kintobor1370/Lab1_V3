@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 
 namespace ClassLibrary1
 {
-    //.........................МАТЕМАТИЧЕСКИЕ ФУНКЦИИ ИЗ ПАКЕТА ВЕКТОРОНОЙ МАТЕМАТИКИ INTEL MKL
+    //____________________________________МАТЕМАТИЧЕСКИЕ ФУНКЦИИ ИЗ ПАКЕТА ВЕКТОРОНОЙ МАТЕМАТИКИ INTEL MKL_____________________________________
     public enum VMf
     {
         vmsLn,
@@ -17,9 +17,8 @@ namespace ClassLibrary1
         vmdLGamma
     }
 
-    //.........................СЕТКА, УЗЛЫ КТОРОЙ ЯВЛЯЮТСЯ АРГУМЕНТАМИ ФУНКЦИИ
-    [Serializable]
-    public class VMGrid
+    //____________________________________________СЕТКА, УЗЛЫ КТОРОЙ ЯВЛЯЮТСЯ АРГУМЕНТАМИ ФУНКЦИИ______________________________________________
+    [Serializable] public class VMGrid
     {
         public int Num { get; set; }
         public float[] Scope { get; set; }
@@ -36,13 +35,12 @@ namespace ClassLibrary1
         }
     }
 
-    //.........................РЕЗУЛЬТАТЫ СРАВНЕНИЯ ВРЕМЕНИ ВЫЧИСЛЕНИЙ В РЕЖИМАХ VML_HA И VML_EP
-    [Serializable]
-    public struct VMTime
+    //___________________________________РЕЗУЛЬТАТЫ СРАВНЕНИЯ ВРЕМЕНИ ВЫЧИСЛЕНИЙ В РЕЖИМАХ VML_HA И VML_EP_____________________________________
+    [Serializable] public struct VMTime
     {
         public VMGrid VMG_Data { get; set; }
-        public int HA_Time { get; set; }                                                                  // время вычислений с точностью VML_HA
-        public int EP_Time { get; set; }                                                                  // время вычислений с точностью VML_EP
+        public int HA_Time { get; set; }                                                          // время вычислений с точностью VML_HA
+        public int EP_Time { get; set; }                                                          // время вычислений с точностью VML_EP
 
         public VMTime(VMGrid g, int HA, int EP)
         {
@@ -55,9 +53,9 @@ namespace ClassLibrary1
         {
             get
             {
-                float res = 0;
-                if (HA_Time != 0) res = EP_Time / HA_Time;
-                return res;
+                if (HA_Time == 0)
+                    return 0;
+                return EP_Time / HA_Time;
             }
         }
 
@@ -72,14 +70,13 @@ namespace ClassLibrary1
         }
     }
 
-    //.........................РЕЗУЛЬТАТЫ СРАВНЕНИЯ ТОЧНОСТИ ВЫЧИСЛЕНИЙ В РЕЖИМАХ VML_HA И VML_EP
-    [Serializable]
-    public struct VMAccuracy
+    //___________________________________РЕЗУЛЬТАТЫ СРАВНЕНИЯ ТОЧНОСТИ ВЫЧИСЛЕНИЙ В РЕЖИМАХ VML_HA И VML_EP____________________________________
+    [Serializable] public struct VMAccuracy
     {
         public VMGrid VMG_Data { get; set; }
-        public float Max_arg { get; set; }                                                                // значения аргумента, при котором максимально отличаются значения функии в режимах VML_HA и VML_EP
-        public float HA_Val { get; set; }                                                                 // значение функции с аргументом Max_arg в режиме VML_HA
-        public float EP_Val { get; set; }                                                                 // значение функции с аргументом Max_arg в режиме VML_EP
+        public float Max_arg { get; set; }                                                        // значения аргумента, при котором максимально отличаются значения функии в режимах VML_HA и VML_EP
+        public float HA_Val { get; set; }                                                         // значение функции с аргументом Max_arg в режиме VML_HA
+        public float EP_Val { get; set; }                                                         // значение функции с аргументом Max_arg в режиме VML_EP
 
         public VMAccuracy(VMGrid g, float arg, float HA, float EP)
         {
@@ -102,9 +99,8 @@ namespace ClassLibrary1
         }
     }
 
-    //.........................СОЗДАНИЕ КОЛЛЕКЦИЙ VMTime И VMAccuracy
-    [Serializable]
-    public class VMBenchmark
+    //________________________________________________СОЗДАНИЕ КОЛЛЕКЦИЙ VMTime И VMAccuracy___________________________________________________
+    [Serializable] public class VMBenchmark
     {
         [DllImport("C:\\Users\\User\\Desktop\\prog\\C#\\Sem6\\Lab1_V3\\x64\\Debug\\Dll1.dll")]
         static extern void VM(int n, float Min_Arg, float Max_Arg, int VMF_num, int[] Time_Data, float[] Accuracy_Data);
@@ -124,8 +120,7 @@ namespace ClassLibrary1
             float[] Accuracy_Data = new float[3];
 
             VM(Copy.Num, Copy.Scope[0], Copy.Scope[1], (int)Copy.Func, Time_Data, Accuracy_Data);
-            var New_VMTime = new VMTime(Copy, Time_Data[0], Time_Data[1]);
-            Console.WriteLine(New_VMTime.ToString());
+            var New_VMTime = new VMTime(Copy, Time_Data[0], Time_Data[1]);;
             TimeCollection.Add(New_VMTime);
         }
 
@@ -146,7 +141,8 @@ namespace ClassLibrary1
             {
                 float max = 0;
                 for (int i = 0; i < TimeCollection.Count; i++)
-                { if (max < TimeCollection[i].EP_by_HA) max = TimeCollection[i].EP_by_HA; }
+                    if (TimeCollection[i].EP_by_HA > max)
+                        max = TimeCollection[i].EP_by_HA;
                 return max;
             }
         }
@@ -159,7 +155,8 @@ namespace ClassLibrary1
                 {
                     float min = TimeCollection[0].EP_by_HA;
                     for (int i = 1; i < TimeCollection.Count; i++)
-                    { if (min > TimeCollection[i].EP_by_HA) min = TimeCollection[i].EP_by_HA; }
+                        if (min > TimeCollection[i].EP_by_HA)
+                            min = TimeCollection[i].EP_by_HA;
                     return min;
                 }
                 catch
