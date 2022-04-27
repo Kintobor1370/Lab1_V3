@@ -3,7 +3,7 @@
 #include "MathLibrary.h"
 #include "time.h"
 #include "math.h"
-//#include "mkl.h"
+#include "mkl.h"
 
 extern "C" _declspec(dllexport)
 void VM(int n, float Min_Arg, float Max_Arg, int VMF_num, int* Time_Data, float* Accuracy_Data)
@@ -31,48 +31,48 @@ void VM(int n, float Min_Arg, float Max_Arg, int VMF_num, int* Time_Data, float*
     switch (VMF_num)													// разбор функций
     {
     case 0: Start_Time = clock();										// случай vmsLn
-        //vmsLn(n, Single_Args, HA_Vals_Single, VML_HA);
-        End_Time = clock();
-        Time_Data[0] = End_Time - Start_Time;
+            vmsLn(n, Single_Args, HA_Vals_Single, VML_HA);
+            End_Time = clock();
+            Time_Data[0] = End_Time - Start_Time;
 
-        Start_Time = clock();
-        //vmsLn(n, Single_Args, EP_Vals_Single, VML_EP);
-        End_Time = clock();
-        Time_Data[1] = End_Time - Start_Time;
-        break;
+            Start_Time = clock();
+            vmsLn(n, Single_Args, EP_Vals_Single, VML_EP);
+            End_Time = clock();
+            Time_Data[1] = End_Time - Start_Time;
+            break;
 
     case 1: Start_Time = clock();										// случай vmdLn
-            //vmdLn(n, Double_Args, HA_Vals_Double, VML_HA);
-        End_Time = clock();
-        Time_Data[0] = End_Time - Start_Time;
+            vmdLn(n, Double_Args, HA_Vals_Double, VML_HA);
+            End_Time = clock();
+            Time_Data[0] = End_Time - Start_Time;
 
-        Start_Time = clock();
-        //vmdLn(n, Double_Args, EP_Vals_Double, VML_EP);
-        End_Time = clock();
-        Time_Data[1] = End_Time - Start_Time;
-        break;
+            Start_Time = clock();
+            vmdLn(n, Double_Args, EP_Vals_Double, VML_EP);
+            End_Time = clock();
+            Time_Data[1] = End_Time - Start_Time;
+            break;
 
     case 2: Start_Time = clock();										// случай vmsLGamma
-            //vmsLGamma(n, Single_Args, HA_Vals_Single, VML_HA);
-        End_Time = clock();
-        Time_Data[0] = End_Time - Start_Time;
+            vmsLGamma(n, Single_Args, HA_Vals_Single, VML_HA);
+            End_Time = clock();
+            Time_Data[0] = End_Time - Start_Time;
 
-        Start_Time = clock();
-        //vmsLGamma(n, Single_Args, EP_Vals_Single, VML_EP);
-        End_Time = clock();
-        Time_Data[1] = End_Time - Start_Time;
-        break;
+            Start_Time = clock();
+            vmsLGamma(n, Single_Args, EP_Vals_Single, VML_EP);
+            End_Time = clock();
+            Time_Data[1] = End_Time - Start_Time;
+            break;
 
     case 3: Start_Time = clock();										// случай vmdLGamma
-            //vmdLGamma(n, Double_Args, HA_Vals_Double, VML_HA);
-        End_Time = clock();
-        Time_Data[0] = End_Time - Start_Time;
+            vmdLGamma(n, Double_Args, HA_Vals_Double, VML_HA);
+            End_Time = clock();
+            Time_Data[0] = End_Time - Start_Time;
 
-        Start_Time = clock();
-        //vmdLGamma(n, Double_Args, EP_Vals_Double, VML_EP);
-        End_Time = clock();
-        Time_Data[1] = End_Time - Start_Time;
-        break;
+            Start_Time = clock();
+            vmdLGamma(n, Double_Args, EP_Vals_Double, VML_EP);
+            End_Time = clock();
+            Time_Data[1] = End_Time - Start_Time;
+            break;
     }
 
     float Max_Sub_Val = 0;
