@@ -11,7 +11,7 @@ using ClassLibrary1;
 
 namespace WpfApp1
 {
-    //.........................ПРИВЯЗКА ДАННЫХ ОБЪЕКТА VMBenchmark К ЭЛЕМЕНТАМ УПРАВЛЕНИЯ ПРИЛОЖЕНИЯ
+    //________________________________ПРИВЯЗКА ДАННЫХ ОБЪЕКТА VMBenchmark К ЭЛЕМЕНТАМ УПРАВЛЕНИЯ ПРИЛОЖЕНИЯ___________________________________
     public class ViewData : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
@@ -73,7 +73,7 @@ namespace WpfApp1
                 }
             }
             catch (Exception ex)
-            { Console.WriteLine("AN EXCEPTION HAS OCCURRED:\n" + ex.Message); }
+            { MessageBox.Show("AN EXCEPTION HAS OCCURRED:\n" + ex.Message); }
             finally
             { if (fs != null) fs.Close(); }
         }
@@ -87,16 +87,16 @@ namespace WpfApp1
                 using (fs = new FileStream(filename, FileMode.Open))
                 {
                     VMBenchmark LoadedBenchmark = (VMBenchmark)Formatter.Deserialize(fs);
-                    for (int i = 0; i < VMBenchmark.TimeCollection.Count; i++)
-                        this.VMBenchmark.TimeCollection[i] = LoadedBenchmark.TimeCollection[i];
-                    for(int i = 0; i < VMBenchmark.AccuracyCollection.Count; i++)
-                        this.VMBenchmark.AccuracyCollection[i] = LoadedBenchmark.AccuracyCollection[i];
+                    for (int i = 0; i < LoadedBenchmark.TimeCollection.Count; i++)
+                        this.VMBenchmark.TimeCollection.Add(LoadedBenchmark.TimeCollection[i]);
+                    for(int i = 0; i < LoadedBenchmark.AccuracyCollection.Count; i++)
+                        this.VMBenchmark.AccuracyCollection.Add(LoadedBenchmark.AccuracyCollection[i]);
 
                     Console.WriteLine("\nDeserialization Complete");
                 }
             }
             catch (Exception ex)
-            { Console.WriteLine("AN EXCEPTION HAS OCCURRED:\n" + ex.Message); }
+            { MessageBox.Show("AN EXCEPTION HAS OCCURRED:\n" + ex.Message); }
             finally
             { if (fs != null) fs.Close(); }
         }
@@ -122,8 +122,7 @@ namespace WpfApp1
         { OnPropertyChanged("VMBenchmark.AccuracyCollection"); }
     }
 
-
-    //.........................ГЛАВНОЕ ОКНО ПРИЛОЖЕНИЯ WPF
+    //______________________________________________________ГЛАВНОЕ ОКНО ПРИЛОЖЕНИЯ WPF_______________________________________________________
     public partial class MainWindow : Window
     {
         public ViewData? ViewData;
@@ -240,8 +239,7 @@ namespace WpfApp1
         }
     }
 
-
-    //.........................КОНВЕРТЕРЫ
+    //______________________________________________________________КОНВЕРТЕРЫ________________________________________________________________
     public class NumConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
@@ -341,8 +339,6 @@ namespace WpfApp1
             { return "EX"; }
         }
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
+        { throw new NotImplementedException(); }
     }
 }
