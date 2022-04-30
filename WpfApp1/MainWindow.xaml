@@ -6,7 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
-        Title="Lab 1 Var 3" Height="600" Width="800">
+        Title="Lab 1 Var 3" Height="600" Width="850">
     <Window.Resources>
         <local:NumConverter x:Key="NumConv"/>
         <local:ScopeConverter x:Key="ScopeConv"/>
@@ -33,7 +33,7 @@
                 <MenuItem Header="Add VMAccuracy" Click="AddVMAccuracy_Click"/>
             </MenuItem>
         </Menu>
-        <Grid Height="600">
+        <Grid Height="600" Width="812">
             <TextBlock x:Name="ChooseYourVMf" Margin="25,40,505,540" Width="270" Height="20"><Run Text="Выберите математическую функцию Intel MKL"/></TextBlock>
             <ComboBox x:Name="WMfBox" SelectedValue="{Binding VMGrid.Func}" Margin="25,60,505,520" Width="270" Height="20"/>
             <TextBlock x:Name="EnterNum" Margin="25,130,505,450" Width="270" Height="20"><Run Text="Введите число узлов сетки"/></TextBlock>
@@ -58,9 +58,9 @@
             <ListBox x:Name="AccuracyCollectionList" ItemsSource="{Binding VMBenchmark.AccuracyCollection, UpdateSourceTrigger=PropertyChanged}" Margin="567,40,33,235" ItemTemplate="{StaticResource GridTemplate}" Width="200" Height="325"/>
             <StackPanel Margin="347,365,253,50" Width="200">
                 <TextBlock Text="Ввременя вычислений в режиме VML_EP:" TextWrapping="Wrap"/>
-                <TextBlock Text="{Binding SelectedItem.EP_Time, Converter={StaticResource FloatConv}, ElementName=TimeCollectionList}" TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding SelectedItem.EP_Time, Converter={StaticResource NumConv}, ElementName=TimeCollectionList}" TextWrapping="Wrap"/>
                 <TextBlock Text="Ввременя вычислений в режиме VML_HA:" TextWrapping="Wrap"/>
-                <TextBlock Text="{Binding SelectedItem.HA_Time, Converter={StaticResource FloatConv}, ElementName=TimeCollectionList}" TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding SelectedItem.HA_Time, Converter={StaticResource NumConv}, ElementName=TimeCollectionList}" TextWrapping="Wrap"/>
                 <TextBlock Text="Коэффициент отношения времени вычислений в режиме VML_EP  к времени вычислений в режиме VML_HA:" TextWrapping="Wrap"/>
                 <TextBlock Text="{Binding SelectedItem.EP_by_HA, Converter={StaticResource FloatConv}, ElementName=TimeCollectionList}" TextWrapping="Wrap"/>
             </StackPanel>

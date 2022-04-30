@@ -89,11 +89,13 @@ namespace WpfApp1
                     VMBenchmark LoadedBenchmark = (VMBenchmark)Formatter.Deserialize(fs);
                     for (int i = 0; i < LoadedBenchmark.TimeCollection.Count; i++)
                         this.VMBenchmark.TimeCollection.Add(LoadedBenchmark.TimeCollection[i]);
-                    for(int i = 0; i < LoadedBenchmark.AccuracyCollection.Count; i++)
+                    for (int i = 0; i < LoadedBenchmark.AccuracyCollection.Count; i++)
                         this.VMBenchmark.AccuracyCollection.Add(LoadedBenchmark.AccuracyCollection[i]);
 
                     Console.WriteLine("\nDeserialization Complete");
                 }
+                OnPropertyChanged("EP_by_HA_Max");
+                OnPropertyChanged("EP_by_HA_Min");
             }
             catch (Exception ex)
             { MessageBox.Show("AN EXCEPTION HAS OCCURRED:\n" + ex.Message); }
@@ -138,16 +140,16 @@ namespace WpfApp1
             save.DefaultExt = ext;
 
             InitializeComponent();
-            
+
             VMBenchmark VMBenchmark = new VMBenchmark();
             ViewData = new ViewData(VMBenchmark);
-            
+
             this.DataContext = ViewData;
             WMfBox.ItemsSource = Enum.GetValues(typeof(VMf));
             TimeCollectionList.ItemsSource = VMBenchmark.TimeCollection;
             AccuracyCollectionList.ItemsSource = VMBenchmark.AccuracyCollection;
         }
-        
+
         private void New_Click(object sender, RoutedEventArgs e)
         {
             if (ViewData.IsChanged)
@@ -166,7 +168,7 @@ namespace WpfApp1
             ViewData.VMBenchmark.TimeCollection.Clear();
             ViewData.VMBenchmark.AccuracyCollection.Clear();
         }
-        
+
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             if (save.ShowDialog() == true)
@@ -176,7 +178,7 @@ namespace WpfApp1
             }
             ViewData.IsChanged = false;
         }
-        
+
         private void Open_Click(object sender, RoutedEventArgs e)
         {
             if (ViewData.IsChanged)
@@ -206,21 +208,19 @@ namespace WpfApp1
             if (open.ShowDialog() == true)
                 ViewData.Load(open.FileName);
         }
-        
+
         private void AddVMTime_Click(object sender, RoutedEventArgs e)
         {
             ViewData.AddVMTime(ViewData.VMGrid);
-            ViewData.OnPropertyChanged("VMBenchmark.TimeCollection");
             ViewData.IsChanged = true;
         }
-        
+
         private void AddVMAccuracy_Click(object sender, RoutedEventArgs e)
         {
             ViewData.AddVMAccuracy(ViewData.VMGrid);
-            ViewData.OnPropertyChanged("VMBenchmark.AccuracyCollection");
             ViewData.IsChanged = true;
         }
-        
+
         void WpfApp1_Closing(object sender, CancelEventArgs e)
         {
             if (ViewData.IsChanged)
