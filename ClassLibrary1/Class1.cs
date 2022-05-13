@@ -5,180 +5,201 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-
 namespace ClassLibrary1
 {
-    //____________________________________МАТЕМАТИЧЕСКИЕ ФУНКЦИИ ИЗ ПАКЕТА ВЕКТОРОНОЙ МАТЕМАТИКИ INTEL MKL_____________________________________
-    public enum VMf
+    public enum SPf
     {
-        vmsLn,
-        vmdLn,
-        vmsLGamma,
-        vmdLGamma
+        CubPol,
+        Exp,
+        Random
     }
 
-    //____________________________________________СЕТКА, УЗЛЫ КТОРОЙ ЯВЛЯЮТСЯ АРГУМЕНТАМИ ФУНКЦИИ______________________________________________
-    [Serializable]
-    public class VMGrid
+    //___________________________________________________ИЗМЕРЕННЫЕ ДАННЫЕ_______________________________________________________
+    public class MeasuredData
     {
-        public int Num { get; set; }
-        public float[] Scope { get; set; }
-        public VMf Func { get; set; }
-        public float Step { get { return (Scope[1] - Scope[0]) / (Num - 1); } }
-
-        public VMGrid(int n = 2, float min = 0, float max = 1, VMf f = VMf.vmsLn)
+        public int Num { get; set; }                                                            // Число узлов неравномерной сетки
+        public double[] Scope { get; set; }                                                     // Массив концов отрезка [a,b]
+        public SPf Func { get; set; }
+        public double[] NodeArray                                                               // Узлы неравномерной сетки
         {
-            this.Num = n;
-            this.Scope = new float[2];
-            this.Scope[0] = min;
-            this.Scope[1] = max;
+            get
+            {
+                if (!NodeArray_is_Generated)                                                    // Проверка того, что генерация узлов неравномерной сетки еще не произошла
+                    RandomNodesGenerate();
+                return node_ar;
+            }
+        }
+        public double[] ValueArray                                                              // Массив значений в узлах неравномерной сетки
+        {
+            get
+            {
+                double[] res = new double[Num];
+                switch (Func)
+                {
+                    case SPf.CubPol:                                                            // Кубический многочлен вида: y = x^3 + 3x^2 - 6x - 18
+                        for (int i = 0; i < Num; i++)
+                            res[i] = Math.Pow(NodeArray[i], 3) + 3 * Math.Pow(NodeArray[i], 2) - 6 * NodeArray[i] - 18;
+                        break;
+
+                    case SPf.Exp:                                                               // Экспонента
+                        for (int i = 0; i < Num; i++)
+                            res[i] = Math.Exp(NodeArray[i]);
+                        break;
+
+                    case SPf.Random:                                                            // Генератор псевдослучайных чисел Random
+                        Random Gen = new Random();
+                        for (int i = 0; i < Num; i++)
+                        {
+                            double a = Gen.Next();                                              // Целая часть
+                            double b = Gen.NextDouble();                                        // Дробная часть
+                            res[i] = a + b;
+                        }
+                        break;
+                }
+                return res;
+            }
+        }
+
+        public MeasuredData(int n = 2, double min = 0, double max = 0, SPf f = SPf.Random)
+        {
+            Num = n;
+            Scope = new double[2];
+            Scope[0] = min;
+            Scope[1] = max;
             Func = f;
         }
-    }
 
-    //___________________________________РЕЗУЛЬТАТЫ СРАВНЕНИЯ ВРЕМЕНИ ВЫЧИСЛЕНИЙ В РЕЖИМАХ VML_HA И VML_EP_____________________________________
-    [Serializable]
-    public struct VMTime
-    {
-        public VMGrid VMG_Data { get; set; }
-        public int HA_Time { get; set; }                                                          // время вычислений с точностью VML_HA
-        public int EP_Time { get; set; }                                                          // время вычислений с точностью VML_EP
-
-        public VMTime(VMGrid g, int HA, int EP)
+        private bool NodeArray_is_Generated = false;                                       // Проверка того, произошла ли генерация узлов неравномерной сетки (чтобы избежать повторной генерации узлов при обращении к массиву)
+        private double[] node_ar { get; set; }                                             // Массив для хранения узлов неравномерной сетки, к которому можно получить доступ только через NodeArray
+        void RandomNodesGenerate()                                                         // Генерация узлов неравномерной стеик
         {
-            this.VMG_Data = g;
-            this.HA_Time = HA;
-            this.EP_Time = EP;
-        }
-
-        public float EP_by_HA
-        {
-            get
+            node_ar = new double[Num];
+            Random Gen = new Random();
+            node_ar[0] = Scope[0];
+            node_ar[1] = Scope[1];
+            for (int i = 2; i < Num; i++)
             {
-                if (HA_Time == 0)
-                    return 0;
-                return (float)EP_Time / HA_Time;
+                double next_node = Scope[0] + (Scope[1] - Scope[0]) * Gen.NextDouble();     // NextDouble() генерирует псевдослучайное число типа double в диапазоне [0,1]
+                for (int j = 0; j < i; j++)
+                    while (next_node == node_ar[j])
+                    {
+                        next_node = Scope[0] + (Scope[1] - Scope[0]) * Gen.NextDouble();
+                        j = 0;
+                    }
+                node_ar[i] = next_node;
             }
-        }
-
-        public override string ToString()
-        {
-            return $"Argument Vector Length: {VMG_Data.Num};" +
-                   $"Min: {VMG_Data.Scope[0]}; Max: {VMG_Data.Scope[1]};" +
-                   $"Step: {VMG_Data.Step};" +
-                   $"VM Fuction: {VMG_Data.Func};" +
-                   $"HA calculation time: {HA_Time}; HA calculation time: {EP_Time};" +
-                   $"EP time by HA time: {EP_by_HA}";
+            Array.Sort(node_ar);
+            NodeArray_is_Generated = true;
         }
     }
 
-    //___________________________________РЕЗУЛЬТАТЫ СРАВНЕНИЯ ТОЧНОСТИ ВЫЧИСЛЕНИЙ В РЕЖИМАХ VML_HA И VML_EP____________________________________
-    [Serializable]
-    public struct VMAccuracy
+    //_______________________________________________ДАННЫЕ ДЛЯ СОЗДАНИЯ СПЛАЙНОВ____________________________________________________
+    public class SplineParameters
     {
-        public VMGrid VMG_Data { get; set; }
-        public float Max_arg { get; set; }                                                        // значения аргумента, при котором максимально отличаются значения функии в режимах VML_HA и VML_EP
-        public float HA_Val { get; set; }                                                         // значение функции с аргументом Max_arg в режиме VML_HA
-        public float EP_Val { get; set; }                                                         // значение функции с аргументом Max_arg в режиме VML_EP
-
-        public VMAccuracy(VMGrid g, float arg, float HA, float EP)
+        public int Num { get; set; }                                                            // Число узлов равномерной сетки
+        public double[] Scope { get; set; }                                                     // Массив концов отрезка [a,b]
+        public double[] NodeArray                                                               // Массив узлов равномерной сетки
         {
-            this.VMG_Data = g;
-            this.Max_arg = arg;
-            this.HA_Val = HA;
-            this.EP_Val = EP;
+            get
+            {
+                double[] res = new double[Num];
+                double step = (Scope[1] - Scope[0]) / (Num - 1);
+                for (int i = 0; i < Num; i++)
+                    res[i] = Scope[0] + i * step;
+                return res;
+            }
         }
+        public double[] Derivative1 { get; set; }                                               // Значения первой производной на концах отрезка для 1-го сплайна
+        public double[] Derivative2 { get; set; }                                               // Значения первой производной на концах отрезка для 2-го сплайна
 
-        public float Max_Sub_Val { get { return Math.Abs(EP_Val - HA_Val); } }
-
-        public override string ToString()
+        public SplineParameters(int n = 2, double min = 0, double max = 1, double d1_left = 1, double d1_right = 1, double d2_left = 0, double d2_right = 0)
         {
-            return $"Argument Vector Length: {VMG_Data.Num};" +
-                   $"Min: {VMG_Data.Scope[0]}; Max: {VMG_Data.Scope[1]};" +
-                   $"Step: {VMG_Data.Step};" +
-                   $"VM Fuction: {VMG_Data.Func};" +
-                   $"Max subtraction argument: {Max_arg}; HA value: {HA_Val}; EP value: {EP_Val};" +
-                   $"Max subtraction value: {Max_Sub_Val}";
+            Num = n;
+            Scope = new double[2];
+            Scope[0] = min;
+            Scope[1] = max;
+
+            Derivative1 = new double[2];
+            Derivative1[0] = d1_left;
+            Derivative1[1] = d1_right;
+
+            Derivative2 = new double[2];
+            Derivative2[0] = d2_left;
+            Derivative2[1] = d2_right;
         }
     }
 
-    //________________________________________________СОЗДАНИЕ КОЛЛЕКЦИЙ VMTime И VMAccuracy___________________________________________________
-    [Serializable]
-    public class VMBenchmark
+    //_____________________________________________________ДАННЫЕ СПЛАЙНОВ___________________________________________________________
+    public class SplinesData
     {
-        [DllImport("C:\\Users\\User\\Desktop\\prog\\C#\\Sem6\\Lab1_V3\\Dll1\\x64\\Debug\\Dll1.dll")]
-        static extern void VM(int n, float Min_Arg, float Max_Arg, int VMF_num, int[] Time_Data, float[] Accuracy_Data);
-        public ObservableCollection<VMTime> TimeCollection { get; set; }
-        public ObservableCollection<VMAccuracy> AccuracyCollection { get; set; }
+        [DllImport("C:\\Users\\User\\Desktop\\prog\\C#\\Sem6\\Lab2_V3\\x64\\Debug\\Dll1.dll")]  // !!Надо изменить абсолютный путь!!
+        static extern void SplineBuild(int nx, int nsites, double[] Scope, double[] NodeArray, double[] ValueArray, double[] Der, double[] Result);
+        public MeasuredData Data { get; set; }
+        public SplineParameters Parameters { get; set; }
+        public double[] NodeArray { get { return Parameters.NodeArray; } }
+        private double[] SplineInterpolationResult1 { get; set; }                               // Массив результатов сплайн интерполяции с первым граничным условием
+        private double[] SplineInterpolationResult2 { get; set; }                               // Массив результатов сплайн интерполяции с первым граничным условием
 
-        public VMBenchmark()
+        public SplinesData(MeasuredData md, SplineParameters sp)
         {
-            TimeCollection = new ObservableCollection<VMTime>();
-            AccuracyCollection = new ObservableCollection<VMAccuracy>();
+            Data = new MeasuredData(md.Num, md.Scope[0], md.Scope[1], md.Func);
+            Parameters = new SplineParameters(sp.Num, sp.Scope[0], sp.Scope[1],
+                                              sp.Derivative1[0], sp.Derivative1[1],
+                                              sp.Derivative2[0], sp.Derivative2[1]);
+
+            SplineInterpolationResult1 = new double[Parameters.Num * 2];
+            SplineInterpolationResult2 = new double[Parameters.Num * 2];
+            
+            BuildSpline();
         }
 
-        public void AddVMTime(VMGrid g)
+        public void BuildSpline()
         {
-            VMGrid Copy = new VMGrid(g.Num, g.Scope[0], g.Scope[1], g.Func);
-            int[] Time_Data = new int[2];
-            float[] Accuracy_Data = new float[3];
-
-            VM(Copy.Num, Copy.Scope[0], Copy.Scope[1], (int)Copy.Func, Time_Data, Accuracy_Data);
-            var New_VMTime = new VMTime(Copy, Time_Data[0], Time_Data[1]);
-            TimeCollection.Add(New_VMTime);
+            SplineBuild(Data.Num, Parameters.Num, Data.Scope, Data.NodeArray, Data.ValueArray,
+                        Parameters.Derivative1, SplineInterpolationResult1);
+            SplineBuild(Data.Num, Parameters.Num, Data.Scope, Data.NodeArray, Data.ValueArray,
+                        Parameters.Derivative2, SplineInterpolationResult2);
         }
 
-        public void AddVMAccuracy(VMGrid g)
-        {
-            VMGrid Copy = new VMGrid(g.Num, g.Scope[0], g.Scope[1], g.Func);
-            int[] Time_Data = new int[2];
-            float[] Accuracy_Data = new float[3];
-
-            VM(Copy.Num, Copy.Scope[0], Copy.Scope[1], (int)Copy.Func, Time_Data, Accuracy_Data);
-            var New_VMAccuracy = new VMAccuracy(Copy, Accuracy_Data[0], Accuracy_Data[1], Accuracy_Data[2]);
-            AccuracyCollection.Add(New_VMAccuracy);
-        }
-
-        public float EP_by_HA_Max
+        public double[] Spline1ValueArray
         {
             get
             {
-                float max = 0;
-                for (int i = 0; i < TimeCollection.Count; i++)
-                    if (TimeCollection[i].EP_by_HA > max)
-                        max = TimeCollection[i].EP_by_HA;
-                return max;
+                double[] res = new double[Parameters.Num];
+                for(int i = 0; i < Parameters.Num; i++)
+                    res[i] = SplineInterpolationResult1[i * 2];
+                return res;
             }
         }
-
-        public float EP_by_HA_Min
+        public double[] Spline2ValueArray
         {
             get
             {
-                try
-                {
-                    float min = TimeCollection[0].EP_by_HA;
-                    for (int i = 1; i < TimeCollection.Count; i++)
-                        if (min > TimeCollection[i].EP_by_HA)
-                            min = TimeCollection[i].EP_by_HA;
-                    return min;
-                }
-                catch
-                { return 0; }
+                double[] res = new double[Parameters.Num];
+                for (int i = 0; i < Parameters.Num; i++)
+                    res[i] = SplineInterpolationResult2[i * 2];
+                return res;
             }
         }
-
-        public void Display()
+        public double[] Spline1DerivativeArray
         {
-            Console.WriteLine("_________________VMTime Collection:_______________");
-            for (int i = 0; i < TimeCollection.Count; i++)
-                Console.WriteLine($"Element {i + 1}:\n" + TimeCollection[i].ToString() + "\n");
-
-            Console.WriteLine("_______________VMAccuracy Collection:_____________");
-            for (int i = 0; i < AccuracyCollection.Count; i++)
-                Console.WriteLine($"Element {i + 1}:\n" + TimeCollection[i].ToString() + "\n");
-
-            Console.WriteLine("__________________________________________________");
+            get
+            {
+                double[] res = new double[Parameters.Num];
+                for (int i = 0; i < Parameters.Num; i++)
+                    res[i] = SplineInterpolationResult1[i * 2 + 1];
+                return res;
+            }
+        }
+        public double[] Spline2DerivativeArray
+        {
+            get
+            {
+                double[] res = new double[Parameters.Num];
+                for (int i = 0; i < Parameters.Num; i++)
+                    res[i] = SplineInterpolationResult2[i * 2 + 1];
+                return res;
+            }
         }
     }
 }
