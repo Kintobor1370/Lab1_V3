@@ -30,7 +30,8 @@ void VM(int n, float Min_Arg, float Max_Arg, int VMF_num, int* Time_Data, float*
 
     switch (VMF_num)													// разбор функций
     {
-    case 0: Start_Time = clock();										// случай vmsLn
+    case 0:
+        Start_Time = clock();										// случай vmsLn
         vmsLn(n, Single_Args, HA_Vals_Single, VML_HA);
         End_Time = clock();
         Time_Data[0] = End_Time - Start_Time;
@@ -41,7 +42,8 @@ void VM(int n, float Min_Arg, float Max_Arg, int VMF_num, int* Time_Data, float*
         Time_Data[1] = End_Time - Start_Time;
         break;
 
-    case 1: Start_Time = clock();										// случай vmdLn
+    case 1:
+        Start_Time = clock();										// случай vmdLn
         vmdLn(n, Double_Args, HA_Vals_Double, VML_HA);
         End_Time = clock();
         Time_Data[0] = End_Time - Start_Time;
@@ -52,7 +54,8 @@ void VM(int n, float Min_Arg, float Max_Arg, int VMF_num, int* Time_Data, float*
         Time_Data[1] = End_Time - Start_Time;
         break;
 
-    case 2: Start_Time = clock();										// случай vmsLGamma
+    case 2:
+        Start_Time = clock();										// случай vmsLGamma
         vmsLGamma(n, Single_Args, HA_Vals_Single, VML_HA);
         End_Time = clock();
         Time_Data[0] = End_Time - Start_Time;
@@ -63,7 +66,8 @@ void VM(int n, float Min_Arg, float Max_Arg, int VMF_num, int* Time_Data, float*
         Time_Data[1] = End_Time - Start_Time;
         break;
 
-    case 3: Start_Time = clock();										// случай vmdLGamma
+    case 3:
+        Start_Time = clock();										// случай vmdLGamma
         vmdLGamma(n, Double_Args, HA_Vals_Double, VML_HA);
         End_Time = clock();
         Time_Data[0] = End_Time - Start_Time;
