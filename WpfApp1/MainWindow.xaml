@@ -53,13 +53,13 @@
                 <TextBlock Text="{Binding Path=EP_by_HA_Max, Converter={StaticResource FloatConv}, UpdateSourceTrigger=PropertyChanged}" Height="20"/>
             </StackPanel>
             <TextBlock x:Name="TimeCollectionTitle" Text="Коллекция результатов сравнения времени" TextWrapping="Wrap" Margin="347,10,253,560" FontWeight="Black" Height="30" Width="200"/>
-            <ListBox x:Name="TimeCollectionList" ItemsSource="{Binding VMBenchmark.TimeCollection, UpdateSourceTrigger=PropertyChanged}" Margin="347,40,253,235" ItemTemplate="{StaticResource GridTemplate}" Width="200" Height="325" SelectionChanged="TimeCollectionList_SelectionChanged"/>
+            <ListBox x:Name="TimeCollectionList" ItemsSource="{Binding VMBenchmark.TimeCollection, UpdateSourceTrigger=PropertyChanged}" Margin="347,40,253,235" ItemTemplate="{StaticResource GridTemplate}" Width="200" Height="325"/>
             <TextBlock x:Name="AccuracyCollectionTitle" Text="Коллекция результатов сравнения точности вычисления функций" TextWrapping="Wrap" Margin="568,10,5,560" FontWeight="Black" Height="30" Width="225"/>
             <ListBox x:Name="AccuracyCollectionList" ItemsSource="{Binding VMBenchmark.AccuracyCollection, UpdateSourceTrigger=PropertyChanged}" Margin="567,40,33,235" ItemTemplate="{StaticResource GridTemplate}" Width="200" Height="325"/>
             <StackPanel Margin="347,365,253,50" Width="200">
-                <TextBlock Text="Время вычислений в режиме VML_EP:" TextWrapping="Wrap"/>
+                <TextBlock Text="Ввременя вычислений в режиме VML_EP:" TextWrapping="Wrap"/>
                 <TextBlock Text="{Binding SelectedItem.EP_Time, Converter={StaticResource NumConv}, ElementName=TimeCollectionList}" TextWrapping="Wrap"/>
-                <TextBlock Text="Время вычислений в режиме VML_HA:" TextWrapping="Wrap"/>
+                <TextBlock Text="Ввременя вычислений в режиме VML_HA:" TextWrapping="Wrap"/>
                 <TextBlock Text="{Binding SelectedItem.HA_Time, Converter={StaticResource NumConv}, ElementName=TimeCollectionList}" TextWrapping="Wrap"/>
                 <TextBlock Text="Коэффициент отношения времени вычислений в режиме VML_EP  к времени вычислений в режиме VML_HA:" TextWrapping="Wrap"/>
                 <TextBlock Text="{Binding SelectedItem.EP_by_HA, Converter={StaticResource FloatConv}, ElementName=TimeCollectionList}" TextWrapping="Wrap"/>
