@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 
 
@@ -18,8 +14,7 @@ namespace ClassLibrary1
     }
 
     //____________________________________________СЕТКА, УЗЛЫ КТОРОЙ ЯВЛЯЮТСЯ АРГУМЕНТАМИ ФУНКЦИИ______________________________________________
-    [Serializable]
-    public class VMGrid
+    [Serializable] public class VMGrid
     {
         public int Num { get; set; }
         public float[] Scope { get; set; }
@@ -37,8 +32,7 @@ namespace ClassLibrary1
     }
 
     //___________________________________РЕЗУЛЬТАТЫ СРАВНЕНИЯ ВРЕМЕНИ ВЫЧИСЛЕНИЙ В РЕЖИМАХ VML_HA И VML_EP_____________________________________
-    [Serializable]
-    public struct VMTime
+    [Serializable] public struct VMTime
     {
         public VMGrid VMG_Data { get; set; }
         public int HA_Time { get; set; }                                                          // время вычислений с точностью VML_HA
@@ -73,8 +67,7 @@ namespace ClassLibrary1
     }
 
     //___________________________________РЕЗУЛЬТАТЫ СРАВНЕНИЯ ТОЧНОСТИ ВЫЧИСЛЕНИЙ В РЕЖИМАХ VML_HA И VML_EP____________________________________
-    [Serializable]
-    public struct VMAccuracy
+    [Serializable] public struct VMAccuracy
     {
         public VMGrid VMG_Data { get; set; }
         public float Max_arg { get; set; }                                                        // значения аргумента, при котором максимально отличаются значения функии в режимах VML_HA и VML_EP
@@ -103,10 +96,9 @@ namespace ClassLibrary1
     }
 
     //________________________________________________СОЗДАНИЕ КОЛЛЕКЦИЙ VMTime И VMAccuracy___________________________________________________
-    [Serializable]
-    public class VMBenchmark
+    [Serializable] public class VMBenchmark
     {
-        [DllImport("C:\\Users\\User\\Desktop\\prog\\C#\\Sem6\\Lab1_V3\\Dll1\\x64\\Debug\\Dll1.dll")]
+        [DllImport(@"C:\Users\User\source\repos\Lab1_V3\x64\Debug\Dll1.dll")]
         static extern void VM(int n, float Min_Arg, float Max_Arg, int VMF_num, int[] Time_Data, float[] Accuracy_Data);
         public ObservableCollection<VMTime> TimeCollection { get; set; }
         public ObservableCollection<VMAccuracy> AccuracyCollection { get; set; }
